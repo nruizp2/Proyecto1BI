@@ -1,0 +1,29 @@
+.banner-buttons{
+    background-color:#303444;
+    margin-top: 1%;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+.logo-banner{
+    border-color: black;
+    position:absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    
+}
+
+.p-banner{
+    margin-top: 7%;
+    margin-right: 15%;
+}
+
+.button-banner{
+    color: azure;
+}
+
+.logo-uniandes{
+    width: 40%;
+    height: auto;
+    margin-top: 10%;
+}
