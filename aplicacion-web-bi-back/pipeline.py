@@ -14,7 +14,7 @@ try:
 except LookupError:
     nltk.download('stopwords')
 
-train_data = 'ODScat_345.xlsx'
+train_data = 'aplicacion-web-bi-back/ODScat_345.xlsx'
 df_train = pd.read_excel(train_data)
 
 X, y = df_train["Textos_espanol"], df_train["sdg"]
