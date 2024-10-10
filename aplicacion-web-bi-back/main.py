@@ -9,8 +9,8 @@ from sklearn.model_selection import train_test_split
 
 
 
-train_data_path = 'aplicacion-web-bi-back/ODScat_345.xlsx'
-pipeline_path = 'aplicacion-web-bi-back/nlp_classification_pipeline.pkl'
+train_data_path = 'ODScat_345.xlsx'
+pipeline_path = 'nlp_classification_pipeline.pkl'
 
 try:
     pipeline = joblib.load(pipeline_path)
