@@ -1,10 +1,13 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 import joblib
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 import os
 from sklearn.model_selection import train_test_split
+
+
 
 train_data_path = 'aplicacion-web-bi-back/ODScat_345.xlsx'
 pipeline_path = 'aplicacion-web-bi-back/nlp_classification_pipeline.pkl'
@@ -17,6 +20,18 @@ except FileNotFoundError:
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class PredictionRequest(BaseModel):
     texts: list[str]
