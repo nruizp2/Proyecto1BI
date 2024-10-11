@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 
 
-train_data_path = 'ODScat_345.xlsx'
+train_data_path = 'predicted_final.xlsx'
 pipeline_path = 'nlp_classification_pipeline.pkl'
 
 try:
