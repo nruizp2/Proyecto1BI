@@ -7,8 +7,11 @@ import Pagination from '@mui/material/Pagination';
 import Probabilities from './probabilities';
 import Load from './load';
 import { Button } from '@mui/material';
+import {useNavigate } from 'react-router-dom';
+
 
 function ShowResults({ texts }) {
+    const navigate = useNavigate();
     const [predictions, setPredictions] = useState(null);
     const [page, setPage] = useState(1);
     const [classes, setClasses] = useState([]);
@@ -22,12 +25,31 @@ function ShowResults({ texts }) {
         5: ods_5
     };
 
-    function get() {
-        let p = texts.map(() => [3, 4, 5][Math.floor(Math.random() * 3)]);
-        setPredictions(p);
-        setClasses(["3","4","5"])
-        setProbs( texts.map( () => [Math.random(),Math.random(),Math.random()]) )
-    }
+    const get = async () => {
+        try {
+            const url = `http://localhost:3001/predict`;
+            
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({
+                    "texts": texts,
+                })
+            });
+            if (!response.ok) {
+                throw new Error("Error")
+            }
+            const data = await response.json();    
+            setPredictions(data["predictions"])
+            setProbs(data["probabilities"])
+            setClasses(data["classes"])
+        } catch (error) {
+            alert("Error, redirigiendo a la pagina principal")
+            navigate("/");
+        }
+    };
 
     useEffect(() => {
         get()

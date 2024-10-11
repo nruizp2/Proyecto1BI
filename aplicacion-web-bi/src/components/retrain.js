@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as XLSX from 'xlsx';
 import ShowFile from "./predictTypes/showFile";
 import ShowMetrics from "./predictTypes/showMetrics";
-import {Grid2, Button, TextField,  Card , CardContent, Divider} from "@mui/material"
+import {Grid2, Button, TextField,  Card , CardContent, Divider, Select, FormHelperText , FormControl, MenuItem} from "@mui/material"
 
 import {useNavigate } from 'react-router-dom';
 
@@ -11,7 +11,15 @@ import Load from "./predictTypes/load";
 
 function Retrain(){
 
+    const urls = {
+        1: "http://localhost:3001/retrain/completo",
+        2: "http://localhost:3001/retrain/independiente",
+        3: "http://localhost:3001/retrain/parcial"
+    }
+
     const navigate = useNavigate();
+
+    const [trainingType, setTrainingType] = useState(1)
 
     const [hasFile, setHasFile] = useState(false);
     const [training, setTraining] = useState(false);
@@ -55,41 +63,67 @@ function Retrain(){
         setHasFile(false);
         setTraining(true);
         
-        setTimeout(() => send(), 10000)
-        // send();
+        get();
 
     }
 
-    const send = () => {
+    const get = async () => {
+        try {
+            const response = await fetch(urls[trainingType], {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({
+                    "texts": texts,
+                    "labels": labels
+                })
+            });
+            if (!response.ok) {
+                throw new Error("Error")
+            }
+            const data = await response.json();   
+            console.log(data)
 
-        //recibo metricas
-        let response = {
-            precision: Math.random(),
-            recall: Math.random(),
-            F1: Math.random(),
-            accuracy: Math.random()
+            setAccuracy(data["accuracy"])
+            setPrecision(data["precision"])
+            setRecall(data["recall"])
+            setF1(data["f1_score"])
+
+            setTrainF(true)
+
+        } catch (error) {
+            alert("Error, redirigiendo a la pagina principal")
+            navigate("/")
         }
-
-        setAccuracy(response.accuracy);
-        setPrecision(response.precision);
-        setRecall(response.recall);
-        setF1(response.F1);
-
-        setTraining(false)
-        setTrainF(true)
-
-    }
+    };
 
     return(
         <div>
             <h1 style={{fontFamily:"serif", textAlign:"left", marginLeft:"3%", marginTop:"1%"}}>Reentrenar el modelo:</h1>
             <h3 style={{fontFamily:"serif", textAlign:"left", marginLeft:"3%"}}>Seleccione un archivo .xlsx y luego verifique que haya sido cargado correctamente por el sistema</h3>
+            <h5 style={{fontFamily:"serif", textAlign:"left", marginLeft:"10%"}}>- Entrenamiento completo: Los datos ingresados se agregan al total de datos que posee el modelo.</h5>
+            <h5 style={{fontFamily:"serif", textAlign:"left", marginLeft:"10%"}}>- Entrenamiento independiente: El modelo se entrena solo con los datos ingresados</h5>
+            <h5 style={{fontFamily:"serif", textAlign:"left", marginLeft:"10%"}}>- Entrenamiento parcial: Los datos ingresados se agregan a una mitad aleatoria de los datos que posee el modelo.</h5>
 
             {!hasFile && !training && !trainF && 
             (
                 <Card style={{width:"50%", height:"auto", margin:"auto", marginTop:"3%"}}>
                     <CardContent>
                         <Grid2 container>
+                            <Grid2 size={12}>
+                                <FormHelperText>Tipo de Reentrenamiento</FormHelperText>
+                                <FormControl fullWidth>
+                                    <Select value={trainingType} onChange={(e) => setTrainingType(e.target.value)}>
+                                        <MenuItem value={1}>Entrenamiento completo</MenuItem>
+                                        <MenuItem value={2}>Entrenamiento independiente</MenuItem>
+                                        <MenuItem value={3}>Entrenamiento parcial</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid2>
+                            <Grid2 style={{marginTop:"3%"}} size={12}>
+                                <Divider/>
+                            </Grid2>
                             <Grid2 style={{marginTop:"2%"}} size={{md:12, lg:6}}>
                                 <TextField style={{marginRight:"5%"}} label="Columna Texto" value={X} onChange={(e) => setX(e.target.value)}/>
                             </Grid2>
