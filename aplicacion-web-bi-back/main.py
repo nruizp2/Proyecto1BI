@@ -9,7 +9,8 @@ from sklearn.model_selection import train_test_split
 
 
 
-train_data_path = 'predicted_final.xlsx'
+train_data_path = 'ODScat_345.xlsx'
+test_data_path = 'predicted_final.xlsx'
 pipeline_path = 'nlp_classification_pipeline.pkl'
 
 try:
@@ -77,11 +78,14 @@ def retrain(request: RetrainingRequest):
 
     combined_data.to_excel(train_data_path, index=False)
 
-    X = combined_data['Textos_espanol']
-    y = combined_data['sdg']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train = combined_data['Textos_espanol']
+    y_train = combined_data['sdg']
 
     pipeline.fit(X_train, y_train)
+
+    test_data = pd.read_excel(test_data_path)
+    X_test = test_data['Textos_espanol']
+    y_test = test_data['sdg']
 
     predictions = pipeline.predict(X_test)
     precision = precision_score(y_test, predictions, average='weighted')
@@ -106,12 +110,15 @@ def retrain_independiente(request: RetrainingRequest):
         raise HTTPException(status_code=400, detail="El número de textos y etiquetas no coincide.")
     
     new_data = pd.DataFrame({'Textos_espanol': request.texts, 'sdg': request.labels})
-
-    X = new_data['Textos_espanol']
-    y = new_data['sdg']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    new_data.to_excel(train_data_path, index=False)
+    X_train = new_data['Textos_espanol']
+    y_train = new_data['sdg']
 
     pipeline.fit(X_train, y_train)
+
+    test_data = pd.read_excel(test_data_path)
+    X_test = test_data['Textos_espanol']
+    y_test = test_data['sdg']
 
     predictions = pipeline.predict(X_test)
     precision = precision_score(y_test, predictions, average='weighted')
@@ -144,11 +151,16 @@ def retrain_parcial(request: RetrainingRequest):
 
     combined_data = pd.concat([historical_sample, new_data], ignore_index=True)
 
-    X = combined_data['Textos_espanol']
-    y = combined_data['sdg']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    combined_data.to_excel(train_data_path, index=False)
+
+    X_train = combined_data['Textos_espanol']
+    y_train = combined_data['sdg']
 
     pipeline.fit(X_train, y_train)
+
+    test_data = pd.read_excel(test_data_path)
+    X_test = test_data['Textos_espanol']
+    y_test = test_data['sdg']
 
     predictions = pipeline.predict(X_test)
     precision = precision_score(y_test, predictions, average='weighted')
